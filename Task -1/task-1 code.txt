@@ -1,0 +1,79 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sn
+
+sn.set(style="whitegrid")
+plt.rcParams['figure.figsize'] = (10, 6)
+
+# Load dataset (Titanic dataset from seaborn)
+df = sn.load_dataset('titanic')
+
+# Display first few rows
+print("First 5 rows of dataset:")
+print(df.head())
+
+# Step 1: Data Cleaning
+print("\nMissing values per column:")
+print(df.isnull().sum())
+
+# Handle missing values
+df['age'] = df['age'].fillna(df['age'].median())
+df['embarked'] = df['embarked'].fillna(df['embarked'].mode()[0])
+
+# Add 'Unknown' as a category to the 'deck' column before filling NaN values, if not already present
+if 'Unknown' not in df['deck'].cat.categories:
+    df['deck'] = df['deck'].cat.add_categories('Unknown')
+df['deck'] = df['deck'].fillna('Unknown')
+df.dropna(subset=['embark_town'], inplace=True)
+
+# Verify missing values handled
+print("\nAfter cleaning, missing values:")
+print(df.isnull().sum())
+
+# Step 2: Basic Statistical Analysis
+
+print("\nSummary statistics:")
+print(df.describe(include='all'))
+
+# Step 3: Data Visualization
+
+# Distribution of Age
+plt.figure()
+sn.histplot(df['age'], kde=True, bins=30)
+plt.title('Age Distribution')
+plt.show()
+
+# Countplot of Survived
+plt.figure()
+sn.countplot(data=df, x='survived')
+plt.title('Survival Count')
+plt.show()
+
+# Survival by Gender
+plt.figure()
+sn.countplot(data=df, x='sex', hue='survived')
+plt.title('Survival by Gender')
+plt.show()
+
+# Correlation Heatmap
+plt.figure()
+sn.heatmap(df.corr(numeric_only=True), annot=True, cmap='coolwarm')
+plt.title('Correlation Heatmap')
+plt.show()
+
+# Boxplot of Age vs Class
+plt.figure()
+sn.boxplot(data=df, x='class', y='age')
+plt.title('Age Distribution by Passenger Class')
+plt.show()
+
+# Step 4: Key Insights
+
+print("\nKey Insights:")
+print("1. Most passengers are in the 3rd class.")
+print("2. Females had a higher survival rate than males.")
+print("3. Younger passengers had slightly better survival chances.")
+print("4. Higher class passengers (1st class) had better survival rates.")
+
+
